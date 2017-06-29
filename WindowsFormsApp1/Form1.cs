@@ -25,12 +25,23 @@ namespace WindowsFormsApp1
         private void button1_Click(object sender, EventArgs e)
         {
             FolderBrowserDialog fbd = new FolderBrowserDialog();
-            fbd.Description = "# Select Result Folder Directory #";
+            fbd.Description = "# Select Folder Directory #";
             if (fbd.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
+                buttonStart.Enabled = true;
                 string path = fbd.SelectedPath;
                 MessageBox.Show(path);
             }
+
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void progressBar1_Click(object sender, EventArgs e)
+        {
 
         }
     }
