@@ -44,7 +44,7 @@
             this.buttonDirectory.TabIndex = 0;
             this.buttonDirectory.Text = "Select Folder";
             this.buttonDirectory.UseVisualStyleBackColor = true;
-            this.buttonDirectory.Click += new System.EventHandler(this.button1_Click);
+            this.buttonDirectory.Click += new System.EventHandler(this.Button1_Click);
             // 
             // pictureBox1
             // 
@@ -65,6 +65,7 @@
             this.buttonStart.TabIndex = 2;
             this.buttonStart.Text = "Start";
             this.buttonStart.UseVisualStyleBackColor = true;
+            this.buttonStart.Click += new System.EventHandler(this.buttonStart_Click);
             // 
             // progressBar1
             // 
@@ -72,7 +73,6 @@
             this.progressBar1.Name = "progressBar1";
             this.progressBar1.Size = new System.Drawing.Size(235, 23);
             this.progressBar1.TabIndex = 3;
-            this.progressBar1.Click += new System.EventHandler(this.progressBar1_Click);
             // 
             // textBox1
             // 
@@ -81,7 +81,6 @@
             this.textBox1.Size = new System.Drawing.Size(27, 20);
             this.textBox1.TabIndex = 4;
             this.textBox1.Text = "v1.0";
-            this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // Form1
             // 
