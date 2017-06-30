@@ -13,8 +13,11 @@ namespace WindowsFormsApp1
 {
     public partial class Form1 : Form
     {
-        decimal result;
+        string selectedDirectory;
         string[] filePaths;
+        decimal[] resultRange = { -2.5m, 2.5m, -1.2m, 1.2m };
+        const int Coefficient = 600;
+        decimal result;
 
         static Exception noFilesFound = new Exception("Selected folder does not containt any .ASC files!");
         static Exception invalidDirectory = new Exception("Invalid Directory!");
@@ -24,16 +27,19 @@ namespace WindowsFormsApp1
             InitializeComponent();
         }
 
+        // buttonDirectory
         private void Button1_Click(object sender, EventArgs e)
         {
             try
             {
                 filePaths = GetFilesFromDirectory();
+
             } catch (FileNotFoundException ex)
             {
                 System.Diagnostics.Trace.WriteLine("FileNotFound");
                 MessageBox.Show("Haven't found any *.ASC files in Selected Directory \nTry other folder.", "FileFotFound Exception",
                     MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
             } catch (InvalidDirectorySelected ex)
             {
                 System.Diagnostics.Trace.WriteLine("InvalidDirectorySelected");
@@ -44,7 +50,19 @@ namespace WindowsFormsApp1
         {
             List<decimal> fileResults = ComputeFiles(filePaths);
             result = ComputeResults(fileResults);
-            MessageBox.Show(result.ToString());
+            //MessageBox.Show(result.ToString());
+            generateLogFile(fileResults);
+
+        }
+
+        private void generateLogFile(List<decimal> fileResults)
+        {
+            StringBuilder sb = new StringBuilder();
+            foreach (decimal fileResult in fileResults)
+            {
+                sb.AppendLine(fileResult.ToString());
+            }
+            File.WriteAllText(selectedDirectory + "log.csv", sb.ToString());
         }
 
         private decimal ComputeResults(List<decimal> fileResults)
@@ -56,15 +74,15 @@ namespace WindowsFormsApp1
 
         private List<decimal> ComputeFiles(string[] filePaths)
         {
-            decimal[] resultRange = { -2.5m, 2.5m, -1.2m, 1.2m };
-            List<decimal> filesResults = new List<decimal>();
-            int coefficient = 600;
+            List<decimal> resultList = new List<decimal>();
+            progressBar.Maximum = filePaths.Count();
 
             foreach (string filePath in filePaths)
             {
+                progressBar.Increment(1);
                 StreamReader reader = new StreamReader(filePath);
-                string line;
 
+                string line;
                 string[] rowResult = new string[3];
                 string[] timeSplit = new string[2];
 
@@ -100,10 +118,10 @@ namespace WindowsFormsApp1
                     }
                 }
                 decimal valueSummaryAvg = decimal.Divide(valueSummary, valueCounter);
-                decimal result = decimal.Divide(valueSummaryAvg, coefficient);
-                filesResults.Add(result);
+                decimal result = decimal.Divide(valueSummaryAvg, Coefficient);
+                resultList.Add(result);
             }
-            return filesResults;
+            return resultList;
         }
 
         private string[] GetFilesFromDirectory()
@@ -112,15 +130,22 @@ namespace WindowsFormsApp1
             fbd.Description = "# Select Folder Directory #";
             if (fbd.ShowDialog() == DialogResult.OK)
             {
+                selectedDirectory = Directory.GetCurrentDirectory();
                 string[] files = Directory.GetFiles(fbd.SelectedPath, "*.ASC");
                 if (files.Length > 0)
                 {
                     buttonStart.Enabled = true;
+                    MessageBox.Show(fbd.SelectedPath);
                     return files;
                 }
                 throw new FileNotFoundException("Haven't found any *.ASC files in Selected Directory");
             }
             throw new InvalidDirectorySelected("No Directory Selected.");
+        }
+
+        private void button1_Click_1(object sender, EventArgs e)
+        {
+
         }
     }
 }

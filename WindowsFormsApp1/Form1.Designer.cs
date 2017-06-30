@@ -31,7 +31,7 @@
             this.buttonDirectory = new System.Windows.Forms.Button();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.buttonStart = new System.Windows.Forms.Button();
-            this.progressBar1 = new System.Windows.Forms.ProgressBar();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.textBox1 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
@@ -67,12 +67,12 @@
             this.buttonStart.UseVisualStyleBackColor = true;
             this.buttonStart.Click += new System.EventHandler(this.buttonStart_Click);
             // 
-            // progressBar1
+            // progressBar
             // 
-            this.progressBar1.Location = new System.Drawing.Point(23, 185);
-            this.progressBar1.Name = "progressBar1";
-            this.progressBar1.Size = new System.Drawing.Size(235, 23);
-            this.progressBar1.TabIndex = 3;
+            this.progressBar.Location = new System.Drawing.Point(23, 185);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(235, 23);
+            this.progressBar.TabIndex = 3;
             // 
             // textBox1
             // 
@@ -88,7 +88,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 262);
             this.Controls.Add(this.textBox1);
-            this.Controls.Add(this.progressBar1);
+            this.Controls.Add(this.progressBar);
             this.Controls.Add(this.buttonStart);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.buttonDirectory);
@@ -105,7 +105,7 @@
         private System.Windows.Forms.Button buttonDirectory;
         private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Button buttonStart;
-        private System.Windows.Forms.ProgressBar progressBar1;
+        private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.TextBox textBox1;
     }
 }
