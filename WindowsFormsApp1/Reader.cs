@@ -66,12 +66,12 @@ namespace WindowsFormsApp1
                     //timeSplit: [ hh:mm:ss, ms ]
                     rowResult = line.Split(';');
                     timeSplit = rowResult[0].Split(',');
+                    string dataValue = rowResult[2];
 
                     //convert  ',' to '.' @NumberFormatException
-                    string dataValue = rowResult[2];
-                    dataValue = dataValue.Replace(',', '.');
+                    dataValue = dataValue.Replace(",", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+                    decimal value = decimal.Parse(dataValue, CultureInfo.CurrentCulture);
 
-                    decimal value = decimal.Parse(dataValue);
                     if (value > resultRange[0] && value < resultRange[1])
                     {
                         if (value < resultRange[2] || value > resultRange[3])
@@ -81,22 +81,33 @@ namespace WindowsFormsApp1
                         }
                     }
                 }
-                decimal valueSummaryAvg = decimal.Divide(valueSummary, valueCounter);
-                decimal result = decimal.Divide(valueSummaryAvg, Coefficient);
-                allResults.Add(result);
+                try
+                {
+                    decimal valueSummaryAvg = decimal.Divide(valueSummary, valueCounter);
+                    decimal result = decimal.Divide(valueSummaryAvg, Coefficient);
+                    allResults.Add(result);
+                } catch (DivideByZeroException ex)
+                {
+                    MessageBox.Show("I haven't found any results in .ASC file(s)!", "ResultsFotFound Exception",
+                        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
             }
         }
 
         private void ComputeFinalResult()
         {
-            this.endResult = decimal.Divide(this.allResults.Sum(), this.allResults.Count);
+            if (this.allResults.Count > 0)
+            {
+                this.endResult = decimal.Divide(this.allResults.Sum(), this.allResults.Count);
+                MessageBox.Show("Read successful!");
+            }
         }
 
         public void GenerateLogFile()
         {
             StringBuilder sb = new StringBuilder();
             string currentDate = GetCurrentDate();
-            sb.AppendLine("Fricttion analyzer LOG:" + "\r\n");
+            sb.AppendLine("Friction analyzer LOG:" + "\r\n");
             sb.AppendLine(currentDate);
             sb.AppendLine("Selected Directory -> " + this.SelectedDirectory + "\r\n");
             sb.AppendLine("Each File Result: ");
@@ -105,7 +116,7 @@ namespace WindowsFormsApp1
             {
                 sb.AppendLine(fileResult.ToString());
             }
-            sb.AppendLine("\r\n" + "Folder Avarage Result: " + this.endResult.ToString());
+            sb.AppendLine("\r\n" + "Folder Average Result: " + this.endResult.ToString());
 
             File.WriteAllText(this.SelectedDirectory + "/log.csv", sb.ToString());
         }

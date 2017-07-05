@@ -1,12 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace WindowsFormsApp1
@@ -23,7 +16,6 @@ namespace WindowsFormsApp1
         // buttonDirectory
         private void Button1_Click(object sender, EventArgs e)
         {
-
             try
             {
                 this.reader = new Reader(progressBar);
@@ -45,7 +37,6 @@ namespace WindowsFormsApp1
         private void buttonStart_Click(object sender, EventArgs e)
         {
             this.reader.readFiles();
-            MessageBox.Show("Read successful!");
             this.reader.GenerateLogFile();
         }
 
