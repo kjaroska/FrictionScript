@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -17,12 +18,15 @@ namespace WindowsFormsApp1
         public ProgressBar ProgressBar;
 
         //constance data
-        public readonly decimal[] resultRange = { -2.5m, 2.5m, -1.2m, 1.2m };
+        public const decimal Radius = 0.0175m;
         public const int Coefficient = 600;
 
         //program generated results
-        public List<decimal> allResults;
-        public decimal endResult;
+        private decimal chartCoefficient;
+        public List<decimal> LinesResults;
+        public List<decimal> ChartCoefficientResults;
+        public List<decimal> AllResults;
+        public decimal EndResult;
 
 
         public Reader(ProgressBar progressBar)
@@ -38,9 +42,11 @@ namespace WindowsFormsApp1
 
         public void ComputeFilesResults()
         {
-            this.allResults = new List<decimal>();
+            this.AllResults = new List<decimal>();
+            this.ChartCoefficientResults = new List<decimal>();
             this.ProgressBar.Maximum = this.FilePaths.Length;
 
+            //for each file in SelectedDirectory
             foreach (string filePath in this.FilePaths)
             {
                 this.ProgressBar.Increment(1);
@@ -50,6 +56,8 @@ namespace WindowsFormsApp1
                 string[] rowResult = new string[3];
                 string[] timeSplit = new string[2];
 
+                this.LinesResults = new List<decimal>();
+                decimal valueSummaryForChartCoefficient = 0;
                 decimal valueSummary = 0;
                 int valueCounter = 0;
 
@@ -59,46 +67,59 @@ namespace WindowsFormsApp1
                     reader.ReadLine();
                 }
 
-                // From 1st result
+                // for each line in a file, From 1st result
                 while ((line = reader.ReadLine()) != null)
                 {
                     //rowResult: [ time, X, Y ]
-                    //timeSplit: [ hh:mm:ss, ms ]
+                    //timeSplit: [ hh:mm:ss, ms ] - timeSplit = rowResult[0].Split(',');
                     rowResult = line.Split(';');
-                    timeSplit = rowResult[0].Split(',');
-                    string dataValue = rowResult[2];
+                    string dataValue = rowResult[1];
 
                     //convert  ',' to '.' @NumberFormatException
                     dataValue = dataValue.Replace(",", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
                     decimal value = decimal.Parse(dataValue, CultureInfo.CurrentCulture);
 
-                    if (value > resultRange[0] && value < resultRange[1])
-                    {
-                        if (value < resultRange[2] || value > resultRange[3])
-                        {
-                            valueSummary += Math.Abs(value);
-                            valueCounter++;
-                        }
-                    }
+                    //add line result
+                    valueSummaryForChartCoefficient += value;
+                    LinesResults.Add(value);
+                    valueCounter++;
                 }
+
+                // compute ChartCoefficient
+                chartCoefficient = decimal.Divide(valueSummaryForChartCoefficient, valueCounter);
+                chartCoefficient = Math.Abs(chartCoefficient);
+                ChartCoefficientResults.Add(chartCoefficient);
+
+                // LINQ - for each element in LinesResults Add chartCoefficient to this element
+                LinesResults = LinesResults.Select(x => x + chartCoefficient).ToList();
+
+                foreach (decimal result in LinesResults)
+                {
+                    valueSummary += Math.Abs(result);
+                }
+
                 try
                 {
+                    //FileResult
                     decimal valueSummaryAvg = decimal.Divide(valueSummary, valueCounter);
+                    valueSummaryAvg = decimal.Divide(valueSummaryAvg, Radius);
                     decimal result = decimal.Divide(valueSummaryAvg, Coefficient);
-                    allResults.Add(result);
+                    this.AllResults.Add(result);
+
                 } catch (DivideByZeroException ex)
                 {
-                    MessageBox.Show("I haven't found any results in .ASC file(s)!", "ResultsFotFound Exception",
+                    MessageBox.Show("I haven't found any results in .ASC file(s)!", "ResultsNotFound Exception",
                         MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 }
             }
+
         }
 
         private void ComputeFinalResult()
         {
-            if (this.allResults.Count > 0)
+            if (this.AllResults.Count > 0)
             {
-                this.endResult = decimal.Divide(this.allResults.Sum(), this.allResults.Count);
+                this.EndResult = decimal.Divide(this.AllResults.Sum(), this.AllResults.Count);
                 MessageBox.Show("Read successful!");
             }
         }
@@ -112,11 +133,11 @@ namespace WindowsFormsApp1
             sb.AppendLine("Selected Directory -> " + this.SelectedDirectory + "\r\n");
             sb.AppendLine("Each File Result: ");
 
-            foreach (decimal fileResult in this.allResults)
+            foreach (decimal fileResult in this.AllResults)
             {
-                sb.AppendLine(fileResult.ToString());
+                sb.AppendLine(fileResult.ToString(CultureInfo.CurrentCulture));
             }
-            sb.AppendLine("\r\n" + "Folder Average Result: " + this.endResult.ToString());
+            sb.AppendLine("\r\n" + "Folder Average Result: " + this.EndResult.ToString(CultureInfo.CurrentCulture));
 
             File.WriteAllText(this.SelectedDirectory + "/log.csv", sb.ToString());
         }
